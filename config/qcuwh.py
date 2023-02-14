@@ -14,10 +14,13 @@ class QCUWHHealthReport(_Report):
         self._enc = 'f837c93e0de9d9ad82db707b2c27241e'
         self._reporter_name = 'QCUWH健康表单'
 
-        self._options_ids = [7, 8, 43, 46, 52, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 56, 57, 58]
-        self._isShow = [9, 48, 49, 47, 53, 54, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35]  # 不显示
-        self._hasAuthority_ids = [5, 6]
-        self._edittext_area = [45]
+        self._temperature_ids = [73]
+        self._options_ids = [73, 74, 62, 60, 61, 66, 67, 68]
+        self._isShow_ids = [63, 61, 64, 68, 69]
+        self._day_id = -1
+        self._report_time_id = -1
+        self._hasAuthority_ids = []
+
         """
         56:三针是否龙泉卫生院接种
         57:两针
@@ -29,22 +32,40 @@ class QCUWHHealthReport(_Report):
     def _clean_form_data(self):
         form_data = self._last_form_data
         for f in form_data:
-            if f['id'] in self._options_ids:
-                if not f['fields'][0]['values']:  # 没数据，不显示,处理56,57,58
-                    f['isShow'] = False
+            if f['id'] == self._day_id:
+                # 打卡日期
+                today = self._t.today
+                if f['fields'][0]['values'][0]['val'] == today:
+                    # 如果获取到上次的打卡时间是今天的，则不需要再次填报
+                    self._result = '%s今日%s已填报过%s' % (self._username_masked, today, self._reporter_name)
+                    raise Exception(self._result)
                 else:
-                    # 下拉项选择改写为 true
-                    for option in f['fields'][0]['options']:
-                        if f['fields'][0]['values'][0]['val'] == option['title']:
-                            option['checked'] = True
-            elif f['id'] in self._isShow:
-                f['isShow'] = False
+                    f['fields'][0]['values'][0]['val'] = today
+            elif f['id'] == self._report_time_id:
+                # 打卡时间
+                today = self._t.today
+                report_time = self._t.report_time
+                if f['fields'][0]['values'][0]['val'].startswith(today):
+                    # 同上
+                    self._result = '%s今日%s已填报过%s' % (self._username_masked, today, self._reporter_name)
+                    raise Exception(self._result)
+                else:
+                    f['fields'][0]['values'][0]['val'] = report_time
+            elif f['id'] in self._temperature_ids and f['id'] not in self._options_ids:
+                # 体温
+                temperature = self._random_temperature()
+                f['fields'][0]['values'][0]['val'] = temperature
+            elif f['id'] in self._options_ids and f['id'] not in self._isShow_ids:
+                # 下拉项选择改写为 true
+                for option in f['fields'][0]['options']:
+                    if f['fields'][0]['values'][0]['val'] == option['title']:
+                        option['checked'] = True
             elif f['id'] in self._hasAuthority_ids:
+                # 内部使用的id
                 f['hasAuthority'] = False
-            # 这个是文本填写,处理45
-            elif f['id'] in self._edittext_area:
-                if not f['fields'][0]['values']:  # 没数据，不显示
-                    f['isShow'] = False
+            elif f['id'] in self._isShow_ids:
+                # 内部使用的id
+                f['isShow'] = False
 
         self._today_form_data = form_data
         return form_data

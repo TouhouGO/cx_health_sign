@@ -13,13 +13,14 @@ class QCUWHHealthReport(_Report):
         self._form_id = '7185'
         self._enc = 'f837c93e0de9d9ad82db707b2c27241e'
         self._reporter_name = 'QCUWH健康表单'
-
-        self._temperature_ids = [73]
-        self._options_ids = [73, 74, 62, 60, 61, 66, 67, 68]
-        self._isShow_ids = [63, 61, 64, 68, 69]
+        
         self._day_id = -1
         self._report_time_id = -1
+        self._temperature_ids = []
+        self._options_ids = [74]
         self._hasAuthority_ids = []
+        self._isShow_ids = [63]
+
 
         """
         56:三针是否龙泉卫生院接种

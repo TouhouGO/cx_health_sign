@@ -14,14 +14,11 @@ class QCUWHHealthReport(_Report):
         self._enc = 'f837c93e0de9d9ad82db707b2c27241e'
         self._reporter_name = 'QCUWH健康表单'
 
-        self._day_id = -1
-        self._report_time_id = -1
-        self._temperature_ids = []
-        self._options_ids = [74]
-        self._hasAuthority_ids = []
-        self._isShow_ids = [63]
-
-
+        self._options_ids = [73,74,62,61,66,67]
+        self._isShow = [63,64,68,69]  # 不显示
+        self._hasAuthority_ids = [5, 6]
+        self._edittext_area = [45]
+       
 
     def _clean_form_data(self):
         form_data = self._last_form_data
